@@ -10,18 +10,21 @@ source $(dirname $0)/config.sh
  
 set -e
 [ -n "${S3_ACCESS_KEY}" -a -n "${S3_SECRET_KEY}" -a -n "${S3_HOST}" -a -n "${S3_BUCKET}" ] || (1>&2 echo "Error: Undefined need variables!" ; exit 1)
-s3_file="${1:-readme.md}"
+s3_file="${1:-s3list.xml}"
 content_type="application/octet-stream"
 date_time=$(date -R)
-resource="/${S3_BUCKET}/${s3_file}"
+resource="/${S3_BUCKET}/"
 method="GET"
 signed_text="${method}\n\n${content_type}\n${date_time}\n${resource}"
 signature=$(echo -en "${signed_text}" | openssl sha1 -hmac ${S3_SECRET_KEY} -binary | base64)
 url="${S3_PROTOCOL:-https}://${S3_HOST}:${S3_PORT:-443}${resource}"
 echo "${method} file:${s3_file} url:${url} ..."
-curl -kfsO -H "Host: ${S3_HOST}" \
+curl -ks -o ${s3_file} ${url} \
+ -X ${method} \
+ -H "Host: ${S3_HOST}" \
  -H "Content-Type: ${content_type}" \
  -H "Date: ${date_time}" \
  -H "Authorization: AWS ${S3_ACCESS_KEY}:${signature}" \
- -X ${method} \
- ${url} && echo OK || (1>&2 echo "Error: ${method}!" ; exit 1)
+  && sed "s/<Contents>\|<\/ListBucketResult>/\n\0/g" -i ${s3_file} \
+  && echo OK || (1>&2 echo "Error: ${method}!" ; exit 1)
+
