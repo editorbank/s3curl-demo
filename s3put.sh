@@ -1,11 +1,12 @@
 #!/bin/bash  
+source $(dirname $0)/config.sh
  
-S3_ACCESS_KEY="YOUR-ACCESS-KEY-HERE"
-S3_SECRET_KEY="YOUR-SECRET-KEY-HERE"
-S3_HOST="localhost"
-S3_PORT=8000
-S3_PROTOCOL=http
-S3_BUCKET="mybucket"
+#S3_ACCESS_KEY="YOUR-ACCESS-KEY-HERE"
+#S3_SECRET_KEY="YOUR-SECRET-KEY-HERE"
+#S3_HOST="localhost"
+#S3_PORT=8000
+#S3_PROTOCOL=http
+#S3_BUCKET="mybucket"
  
 set -e
 [ -n "${S3_ACCESS_KEY}" -a -n "${S3_SECRET_KEY}" -a -n "${S3_HOST}" -a -n "${S3_BUCKET}" ] || (1>&2 echo "Error: Undefined need variables!" ; exit 1)
